@@ -3,7 +3,7 @@
 
 <VirtualHost *:<%= node['munin']['web_server_port'] %>>
   ServerAdmin   <%= node['munin']['sysadmin_email'] %>
-  ServerName    <%= node['fqdn'] %>
+  ServerName    <%= node['munin']['host'] || node['fqdn'] %>
   ServerAlias   munin <%= node['munin']['public_domain'] %>
   Alias         /munin <%= node['munin']['docroot'] %>
   DocumentRoot  <%= node['munin']['docroot'] %>

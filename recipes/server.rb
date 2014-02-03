@@ -52,13 +52,13 @@ include_recipe 'munin::client'
 
 sysadmins = []
 if Chef::Config[:solo]
-  sysadmins = data_bag('users').map { |user| data_bag_item('users', user) }
+  sysadmins = node['munin']['sysadmins'] || data_bag('users').map { |user| data_bag_item('users', user) }
 else
   sysadmins = search(:users, 'groups:sysadmin')
 end
 
 if Chef::Config[:solo]
-  munin_servers = [node]
+  munin_servers = node['munin']['nodes'] || [node]
 else
   munin_servers = []
   if node['munin']['multi_environment_monitoring']
@@ -74,14 +74,13 @@ else
   else
     munin_servers = search(:node, "munin:[* TO *] AND chef_environment:#{node.chef_environment}")
   end
+  munin_servers.sort! { |a, b| a['fqdn'] <=> b['fqdn'] }
 end
 
 if munin_servers.empty?
   Chef::Log.info 'No nodes returned from search, using this node so munin configuration has data'
   munin_servers = [node]
 end
-
-munin_servers.sort! { |a, b| a['fqdn'] <=> b['fqdn'] }
 
 case node['platform']
 when 'freebsd'
